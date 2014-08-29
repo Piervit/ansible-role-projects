@@ -1,0 +1,40 @@
+server {
+    listen 80;
+
+    server_name {% if name is defined %}{{ name }}.{% endif %}{{ host }};
+    root {{ root }}/web;
+
+    {% if name is defined %}
+    error_log /var/log/nginx/{{ name }}.error.log;
+    access_log /var/log/nginx/{{ name }}.access.log;
+    {% endif %}
+
+    # strip app.php/ prefix if it is present
+    rewrite ^/app\.php/?(.*)$ /$1 permanent;
+
+    location / {
+        index app.php;
+        try_files $uri @rewriteapp;
+
+        # Issue with virtualbox and nginx
+        # http://jeremyfelt.com/code/2013/01/08/clear-nginx-cache-in-vagrant/
+        sendfile off;
+    }
+
+    location @rewriteapp {
+        rewrite ^(.*)$ /app.php/$1 last;
+    }
+
+    # pass the PHP scripts to FastCGI server from upstream phpfcgi
+    location ~ ^/(app|app_dev|config)\.php(/|$) {
+        fastcgi_pass unix:/var/run/php5-fpm.sock;
+        fastcgi_split_path_info ^(.+\.php)(/.*)$;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param HTTPS off;
+        fastcgi_read_timeout 300;
+
+        fastcgi_param SYMFONY__CACHE_BASE_DIR {{ cache }};
+        fastcgi_param SYMFONY__LOGS_DIR {{ logs }};
+    }
+}

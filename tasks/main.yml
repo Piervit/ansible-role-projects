@@ -1,0 +1,13 @@
+---
+
+- include: type_php.yml
+  when: type == "php"
+
+- include: type_silex.yml
+  when: type == "silex"
+
+- include: type_symfony.yml
+  when: type == "symfony"
+
+- include: type_www.yml
+  when: type == "www"

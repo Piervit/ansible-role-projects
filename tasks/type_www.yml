@@ -1,0 +1,15 @@
+---
+
+- name: project nginx config
+  template: >
+    src=www/{{ template }}
+    dest=/etc/nginx/sites-available/{{ name | default('project') }}
+  sudo: yes
+
+- name: project nginx enable
+  shell: >
+    ngxensite {{ name | default('project') }}
+    creates=/etc/nginx/sites-enabled/{{ name | default('project') }}
+  notify:
+    - nginx restart
+  sudo: yes

@@ -1,0 +1,6 @@
+---
+
+template: project.j2
+root:     /srv/www{% if name is defined %}/{{ name }}{% endif %}
+cache:    /srv/cache{% if name is defined %}/{{ name }}{% endif %}
+logs:     /srv/logs{% if name is defined %}/{{ name }}{% endif %}

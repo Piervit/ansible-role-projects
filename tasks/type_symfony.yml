@@ -1,0 +1,32 @@
+---
+
+- name: project nginx config
+  template: >
+    src=symfony/{{ template }}
+    dest=/etc/nginx/sites-available/{{ name | default('project') }}
+  sudo: yes
+
+- name: project nginx enable
+  shell: >
+    ngxensite {{ name | default('project') }}
+    creates=/etc/nginx/sites-enabled/{{ name | default('project') }}
+  notify:
+    - nginx restart
+  sudo: yes
+
+- name: project cache
+  file: >
+    path={{ cache }}
+    state=directory
+  sudo: yes
+
+- name: project logs
+  file: >
+    path={{ logs }}
+    state=directory
+  sudo: yes
+
+- name: project acl
+  shell: >
+    setfacl -R -m u:www-data:rwX -m u:{{ user }}:rwX {{ cache }} {{ logs }} && setfacl -dR -m u:www-data:rwx -m u:{{ user }}:rwx {{ cache }} {{ logs }}
+  sudo: yes

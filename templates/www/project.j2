@@ -1,0 +1,19 @@
+server {
+    listen 80;
+
+    server_name {% if name is defined %}{{ name }}.{% endif %}{{ host }};
+    root {{ root }};
+
+    {% if name is defined %}
+    error_log /var/log/nginx/{{ name }}.error.log;
+    access_log /var/log/nginx/{{ name }}.access.log;
+    {% endif %}
+
+    location / {
+
+        # Issue with virtualbox and nginx
+        # http://jeremyfelt.com/code/2013/01/08/clear-nginx-cache-in-vagrant/
+        sendfile off;
+
+    }
+}
