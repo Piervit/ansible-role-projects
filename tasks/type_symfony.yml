@@ -14,6 +14,18 @@
     - nginx restart
   sudo: yes
 
+- name: project environment cache base
+  lineinfile: >
+    dest=/etc/environment
+    line="export SYMFONY__CACHE_BASE_DIR={{ cache }}"
+  sudo: yes
+
+- name: project environment log
+  lineinfile: >
+    dest=/etc/environment
+    line="export SYMFONY__LOGS_DIR={{ logs }}"
+  sudo: yes
+
 - name: project cache
   file: >
     path={{ cache }}
