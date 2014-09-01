@@ -12,5 +12,9 @@ server {
         # Issue with virtualbox and nginx
         # http://jeremyfelt.com/code/2013/01/08/clear-nginx-cache-in-vagrant/
         sendfile off;
+
+        {% if item.value['extra'] is defined %}
+        {{ item.value['extra'] }}
+        {% endif %}
     }
 }

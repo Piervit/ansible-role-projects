@@ -18,6 +18,7 @@ Role Variables
         type:  symfony  # Project type (php|silex|symfony|www)
         host:  foo.dev  # Project host
         root:  null     # Project root
+        extra:  null    # Project extra configuration
         cache: null     # Project cache (symfony type only)
         logs:  null     # Project logs  (symfony type only)
 
