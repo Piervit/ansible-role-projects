@@ -1,13 +1,11 @@
 server {
     listen 80;
 
-    server_name {% if name is defined %}{{ name }}.{% endif %}{{ host }};
-    root {{ root }};
+    server_name {{ item.value['host'] }};
+    root {{ item.value['root']|default('/srv/' ~ item.key) }};
 
-  	{% if name is defined %}
-    error_log /var/log/nginx/{{ name }}.error.log;
-    access_log /var/log/nginx/{{ name }}.access.log;
-	{% endif %}
+    error_log /var/log/nginx/{{ item.key }}.error.log;
+    access_log /var/log/nginx/{{ item.key }}.access.log;
 
     location / {
         index index.php;

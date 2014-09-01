@@ -1,13 +1,42 @@
 ---
 
-- include: type_php.yml
-  when: type == "php"
+- name: project nginx config
+  template: >
+    src={{ item.value['type'] }}/project.j2
+    dest=/etc/nginx/sites-available/{{ item.key }}
+  notify:
+    - nginx restart
+  with_dict: elao_projects
+  sudo: yes
 
-- include: type_silex.yml
-  when: type == "silex"
+- name: project nginx enable
+  shell: >
+    ngxensite {{ item.key }}
+    creates=/etc/nginx/sites-enabled/{{ item.key }}
+  notify:
+    - nginx restart
+  with_dict: elao_projects
+  sudo: yes
 
-- include: type_symfony.yml
-  when: type == "symfony"
+- name: project symfony cache
+  file: >
+    path={{ item.value['cache']|default('/srv/' ~ item.key ~ '/cache') }}
+    state=directory
+  with_dict: elao_projects
+  when: item.value['type'] == 'symfony'
+  sudo: yes
 
-- include: type_www.yml
-  when: type == "www"
+- name: project symfony logs
+  file: >
+    path={{ item.value['logs']|default('/srv/' ~ item.key ~ '/logs') }}
+    state=directory
+  with_dict: elao_projects
+  when: item.value['type'] == 'symfony'
+  sudo: yes
+
+- name: project acl
+  shell: >
+    setfacl -R -m u:www-data:rwX -m u:{{ user }}:rwX {{ item.value['cache']|default('/srv/' ~ item.key ~ '/cache') }} {{ item.value['logs']|default('/srv/' ~ item.key ~ '/logs') }} && setfacl -dR -m u:www-data:rwx -m u:{{ user }}:rwx {{ item.value['cache']|default('/srv/' ~ item.key ~ '/cache') }} {{ item.value['logs']|default('/srv/' ~ item.key ~ '/logs') }}
+  with_dict: elao_projects
+  when: item.value['type'] == 'symfony'
+  sudo: yes
