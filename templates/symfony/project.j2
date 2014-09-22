@@ -2,7 +2,7 @@ server {
     listen 80;
 
     server_name {{ item.value['host'] }};
-    root {{ item.value['root']|default('/srv/' ~ item.key ~ '/www/web') }};
+    root {{ item.value['root']|default('/srv/' ~ item.key ~ '/symfony/web') }};
 
     error_log /var/log/nginx/{{ item.key }}.error.log;
     access_log /var/log/nginx/{{ item.key }}.access.log;

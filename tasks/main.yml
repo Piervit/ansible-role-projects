@@ -36,7 +36,7 @@
 
 - name: project acl
   shell: >
-    setfacl -R -m u:www-data:rwX -m u:{{ user }}:rwX {{ item.value['cache']|default('/srv/' ~ item.key ~ '/cache') }} {{ item.value['logs']|default('/srv/' ~ item.key ~ '/logs') }} && setfacl -dR -m u:www-data:rwx -m u:{{ user }}:rwx {{ item.value['cache']|default('/srv/' ~ item.key ~ '/cache') }} {{ item.value['logs']|default('/srv/' ~ item.key ~ '/logs') }}
+    setfacl -R -m u:www-data:rwX -m u:{{ item.value['user']|default(ansible_ssh_user) }}:rwX {{ item.value['cache']|default('/srv/' ~ item.key ~ '/cache') }} {{ item.value['logs']|default('/srv/' ~ item.key ~ '/logs') }} && setfacl -dR -m u:www-data:rwx -m u:{{ item.value['user']|default(ansible_ssh_user) }}:rwx {{ item.value['cache']|default('/srv/' ~ item.key ~ '/cache') }} {{ item.value['logs']|default('/srv/' ~ item.key ~ '/logs') }}
   with_dict: elao_projects
   when: item.value['type'] == 'symfony'
   sudo: yes
