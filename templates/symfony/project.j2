@@ -1,7 +1,9 @@
 server {
     listen 80;
 
-    server_name {{ item.value['host'] }};
+elao_vagrant
+
+    server_name {% if elao_vagrant %}*.vagrantshare.com {% endif %}{{ item.value['host'] }};
     root {{ item.value['root']|default('/srv/' ~ item.key ~ '/symfony/web') }};
 
     error_log /var/log/nginx/{{ item.key }}.error.log;
