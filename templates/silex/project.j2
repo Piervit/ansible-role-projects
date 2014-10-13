@@ -24,7 +24,7 @@ server {
     }
 
     # pass the PHP scripts to FastCGI server from upstream phpfcgi
-    location ~ ^/(index|index_dev)\.php(/|$) {
+    location ~ ^/(index{% if elao_env != 'prod' %}|index_dev{% endif %})\.php(/|$) {
         fastcgi_pass unix:/var/run/php5-fpm.sock;
         fastcgi_split_path_info ^(.+\.php)(/.*)$;
         include fastcgi_params;

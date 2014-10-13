@@ -26,7 +26,7 @@ elao_vagrant
     }
 
     # pass the PHP scripts to FastCGI server from upstream phpfcgi
-    location ~ ^/(app|app_dev|app_test)\.php(/|$) {
+    location ~ ^/(app{% if elao_env != 'prod' %}|app_dev|app_test{% endif %})\.php(/|$) {
         fastcgi_pass unix:/var/run/php5-fpm.sock;
         fastcgi_split_path_info ^(.+\.php)(/.*)$;
         include fastcgi_params;
