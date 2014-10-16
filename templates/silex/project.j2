@@ -10,13 +10,18 @@ server {
     # strip index.php/ prefix if it is present
     rewrite ^/index\.php/?(.*)$ /$1 permanent;
     
+{% if item.value['extra'] is defined %}
+    {{ item.value['extra'] }}
+{% endif %}
+
     location / {
         index index.php;
         try_files $uri @rewriteapp;
-
+{% if elao_vagrant %}
         # Issue with virtualbox and nginx
         # http://jeremyfelt.com/code/2013/01/08/clear-nginx-cache-in-vagrant/
         sendfile off;
+{% endif %}
     }
     
     location @rewriteapp {
@@ -32,8 +37,8 @@ server {
         fastcgi_param HTTPS off;
         fastcgi_read_timeout 300;
 
-        {% if item.value['extra'] is defined %}
-        {{ item.value['extra'] }}
-        {% endif %}
+{% if item.value['location_extra'] is defined %}
+        {{ item.value['location_extra'] }}
+{% endif %}
     }
 }

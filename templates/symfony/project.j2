@@ -2,7 +2,7 @@ server {
     listen 80;
 
     server_name {% if elao_vagrant %}*.vagrantshare.com {% endif %}{{ item.value['host'] }};
-    root {{ item.value['root']|default('/srv/' ~ item.key ~ '/symfony/web') }};
+    root {{ item.value['root']|default('/srv/' ~ item.key ~ '/symfony/' ~ ('current/' if (elao_env == 'prod') else '') ~ 'web') }};
 
     error_log /var/log/nginx/{{ item.key }}.error.log;
     access_log /var/log/nginx/{{ item.key }}.access.log;
@@ -10,13 +10,18 @@ server {
     # strip app.php/ prefix if it is present
     rewrite ^/app\.php/?(.*)$ /$1 permanent;
 
+{% if item.value['extra'] is defined %}
+    {{ item.value['extra'] }}
+{% endif %}
+
     location / {
         index app.php;
         try_files $uri @rewriteapp;
-
+{% if elao_vagrant %}
         # Issue with virtualbox and nginx
         # http://jeremyfelt.com/code/2013/01/08/clear-nginx-cache-in-vagrant/
         sendfile off;
+{% endif %}
     }
 
     location @rewriteapp {
@@ -32,8 +37,8 @@ server {
         fastcgi_param HTTPS off;
         fastcgi_read_timeout 300;
 
-        {% if item.value['extra'] is defined %}
-        {{ item.value['extra'] }}
-        {% endif %}
+{% if item.value['location_extra'] is defined %}
+        {{ item.value['location_extra'] }}
+{% endif %}
     }
 }

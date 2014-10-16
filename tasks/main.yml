@@ -18,12 +18,22 @@
   with_dict: elao_projects
   sudo: yes
 
+- name: project permission
+  file: >
+    path={{ item.value['root']|default('/srv/' ~ item.key ~ '/symfony') }}
+    state=directory
+    owner={{ item.value['user']|default(elao_base_user) }}
+    group={{ item.value['group']|default(elao_base_group) }}
+  with_dict: elao_projects
+  when: item.value['type'] == 'symfony' and not elao_vagrant
+  sudo: yes
+
 - name: project symfony cache
   file: >
     path={{ item.value['cache']|default('/srv/' ~ item.key ~ '/cache') }}
     state=directory
   with_dict: elao_projects
-  when: item.value['type'] == 'symfony'
+  when: item.value['type'] == 'symfony' and elao_vagrant
   sudo: yes
 
 - name: project symfony logs
@@ -31,12 +41,19 @@
     path={{ item.value['logs']|default('/srv/' ~ item.key ~ '/logs') }}
     state=directory
   with_dict: elao_projects
-  when: item.value['type'] == 'symfony'
+  when: item.value['type'] == 'symfony' and elao_vagrant
   sudo: yes
 
 - name: project acl
   shell: >
-    setfacl -R -m u:www-data:rwX -m u:{{ item.value['user']|default(ansible_ssh_user) }}:rwX {{ item.value['cache']|default('/srv/' ~ item.key ~ '/cache') }} {{ item.value['logs']|default('/srv/' ~ item.key ~ '/logs') }} && setfacl -dR -m u:www-data:rwx -m u:{{ item.value['user']|default(ansible_ssh_user) }}:rwx {{ item.value['cache']|default('/srv/' ~ item.key ~ '/cache') }} {{ item.value['logs']|default('/srv/' ~ item.key ~ '/logs') }}
+    setfacl -R -m u:{{ elao_nginx_user }}:rwX -m u:{{ item.value['user']|default(elao_base_user) }}:rwX {{ item.value['cache']|default('/srv/' ~ item.key ~ '/cache') }} {{ item.value['logs']|default('/srv/' ~ item.key ~ '/logs') }}
   with_dict: elao_projects
-  when: item.value['type'] == 'symfony'
+  when: item.value['type'] == 'symfony' and elao_vagrant
+  sudo: yes
+
+- name: project acl default
+  shell: >
+    setfacl -dR -m u:{{ elao_nginx_user }}:rwx -m u:{{ item.value['user']|default(elao_base_user) }}:rwx {{ item.value['cache']|default('/srv/' ~ item.key ~ '/cache') }} {{ item.value['logs']|default('/srv/' ~ item.key ~ '/logs') }}
+  with_dict: elao_projects
+  when: item.value['type'] == 'symfony' and elao_vagrant
   sudo: yes

@@ -7,12 +7,17 @@ server {
     error_log /var/log/nginx/{{ item.key }}.error.log;
     access_log /var/log/nginx/{{ item.key }}.access.log;
 
+{% if item.value['extra'] is defined %}
+    {{ item.value['extra'] }}
+{% endif %}
+
     location / {
         index index.php;
-
+{% if elao_vagrant %}
         # Issue with virtualbox and nginx
         # http://jeremyfelt.com/code/2013/01/08/clear-nginx-cache-in-vagrant/
         sendfile off;
+{% endif %}
     }
 
     # pass the PHP scripts to FastCGI server from upstream phpfcgi
@@ -24,8 +29,8 @@ server {
         fastcgi_param HTTPS off;
         fastcgi_read_timeout 300;
 
-        {% if item.value['extra'] is defined %}
-        {{ item.value['extra'] }}
-        {% endif %}
+{% if item.value['location_extra'] is defined %}
+        {{ item.value['location_extra'] }}
+{% endif %}
     }
 }
