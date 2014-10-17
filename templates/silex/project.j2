@@ -1,22 +1,22 @@
 server {
     listen 80;
 
-    server_name {% if elao_vagrant %}*.vagrantshare.com {% endif %}{{ item.value['host'] }};
-    root {{ item.value['root']|default('/srv/' ~ item.key ~ '/web') }};
+    server_name {% if elao_vagrant %}*.vagrantshare.com {% endif %}{{ item.host|default(elao_base_host) }};
+    root {{ item.root|default('/srv/' ~ item.name ~ '/web') }};
 
-    error_log /var/log/nginx/{{ item.key }}.error.log;
-    access_log /var/log/nginx/{{ item.key }}.access.log;
+    error_log /var/log/nginx/{{ item.name }}.error.log;
+    access_log /var/log/nginx/{{ item.name }}.access.log;
 
     # strip index.php/ prefix if it is present
     rewrite ^/index\.php/?(.*)$ /$1 permanent;
     
-{% if item.value['extra'] is defined %}
-    {{ item.value['extra'] }}
+{% if item.extra is defined %}
+    {{ item.extra }}
 {% endif %}
 
     location / {
         index index.php;
-        try_files $uri @rewriteapp;
+        try_files $uri @rewrite;
 {% if elao_vagrant %}
         # Issue with virtualbox and nginx
         # http://jeremyfelt.com/code/2013/01/08/clear-nginx-cache-in-vagrant/
@@ -24,7 +24,7 @@ server {
 {% endif %}
     }
     
-    location @rewriteapp {
+    location @rewrite {
         rewrite ^(.*)$ /index.php/$1 last;
     }
 
@@ -37,8 +37,8 @@ server {
         fastcgi_param HTTPS off;
         fastcgi_read_timeout 300;
 
-{% if item.value['location_extra'] is defined %}
-        {{ item.value['location_extra'] }}
+{% if item.location_extra is defined %}
+        {{ item.location_extra }}
 {% endif %}
     }
 }

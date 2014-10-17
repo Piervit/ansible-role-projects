@@ -1,14 +1,14 @@
 server {
     listen 80;
 
-    server_name {% if elao_vagrant %}*.vagrantshare.com {% endif %}{{ item.value['host'] }};
-    root {{ item.value['root']|default('/srv/' ~ item.key) }};
+    server_name {% if elao_vagrant %}*.vagrantshare.com {% endif %}{{ item.host }};
+    root {{ item.root|default('/srv/' ~ item.name) }};
 
-    error_log /var/log/nginx/{{ item.key }}.error.log;
-    access_log /var/log/nginx/{{ item.key }}.access.log;
+    error_log /var/log/nginx/{{ item.name }}.error.log;
+    access_log /var/log/nginx/{{ item.name }}.access.log;
 
-{% if item.value['extra'] is defined %}
-    {{ item.value['extra'] }}
+{% if item.extra is defined %}
+    {{ item.extra }}
 {% endif %}
 
     location / {
@@ -17,8 +17,8 @@ server {
         # http://jeremyfelt.com/code/2013/01/08/clear-nginx-cache-in-vagrant/
         sendfile off;
 {% endif %}
-{% if item.value['location_extra'] is defined %}
-        {{ item.value['location_extra'] }}
+{% if item.location_extra is defined %}
+        {{ item.location_extra }}
 {% endif %}
     }
 }

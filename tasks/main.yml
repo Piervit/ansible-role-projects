@@ -1,59 +1,59 @@
 ---
 
-- name: project nginx config
+- name: nginx config
   template: >
-    src={{ item.value['type'] }}/project.j2
-    dest=/etc/nginx/sites-available/{{ item.key }}
+    src={{ item.type }}/project.j2
+    dest=/etc/nginx/sites-available/{{ item.name ~ (('_' ~ item.index) if (item.index|default('app') != 'app') else '') }}
   notify:
     - nginx restart
-  with_dict: elao_projects
+  with_items: elao_projects
   sudo: yes
 
-- name: project nginx enable
+- name: nginx enable
   shell: >
-    ngxensite {{ item.key }}
-    creates=/etc/nginx/sites-enabled/{{ item.key }}
+    ngxensite {{ item.name ~ (('_' ~ item.index) if (item.index|default('app') != 'app') else '') }}
+    creates=/etc/nginx/sites-enabled/{{ item.name ~ (('_' ~ item.index) if (item.index|default('app') != 'app') else '') }}
   notify:
     - nginx restart
-  with_dict: elao_projects
+  with_items: elao_projects
   sudo: yes
 
-- name: project permission
+- name: permission
   file: >
-    path={{ item.value['root']|default('/srv/' ~ item.key ~ '/symfony') }}
+    path={{ item.root|default('/srv/' ~ item.name ~ '/symfony') }}
     state=directory
-    owner={{ item.value['user']|default(elao_base_user) }}
-    group={{ item.value['group']|default(elao_base_group) }}
-  with_dict: elao_projects
-  when: item.value['type'] == 'symfony' and not elao_vagrant
+    owner={{ item.user|default(elao_base_user) }}
+    group={{ item.group|default(elao_base_group) }}
+  with_items: elao_projects
+  when: item.type == 'symfony' and not elao_vagrant
   sudo: yes
 
-- name: project symfony cache
+- name: symfony cache
   file: >
-    path={{ item.value['cache']|default('/srv/' ~ item.key ~ '/cache') }}
+    path={{ item.cache|default('/srv/' ~ item.name ~ '/cache') }}
     state=directory
-  with_dict: elao_projects
-  when: item.value['type'] == 'symfony' and elao_vagrant
+  with_items: elao_projects
+  when: item.type == 'symfony' and elao_vagrant
   sudo: yes
 
-- name: project symfony logs
+- name: symfony logs
   file: >
-    path={{ item.value['logs']|default('/srv/' ~ item.key ~ '/logs') }}
+    path={{ item.logs|default('/srv/' ~ item.name ~ '/logs') }}
     state=directory
-  with_dict: elao_projects
-  when: item.value['type'] == 'symfony' and elao_vagrant
+  with_items: elao_projects
+  when: item.type == 'symfony' and elao_vagrant
   sudo: yes
 
-- name: project acl
+- name: acl
   shell: >
-    setfacl -R -m u:{{ elao_nginx_user }}:rwX -m u:{{ item.value['user']|default(elao_base_user) }}:rwX {{ item.value['cache']|default('/srv/' ~ item.key ~ '/cache') }} {{ item.value['logs']|default('/srv/' ~ item.key ~ '/logs') }}
-  with_dict: elao_projects
-  when: item.value['type'] == 'symfony' and elao_vagrant
+    setfacl -R -m u:{{ elao_nginx_user }}:rwX -m u:{{ item.user|default(elao_base_user) }}:rwX {{ item.cache|default('/srv/' ~ item.name ~ '/cache') }} {{ item.logs|default('/srv/' ~ item.name ~ '/logs') }}
+  with_items: elao_projects
+  when: item.type == 'symfony' and elao_vagrant
   sudo: yes
 
-- name: project acl default
+- name: acl default
   shell: >
-    setfacl -dR -m u:{{ elao_nginx_user }}:rwx -m u:{{ item.value['user']|default(elao_base_user) }}:rwx {{ item.value['cache']|default('/srv/' ~ item.key ~ '/cache') }} {{ item.value['logs']|default('/srv/' ~ item.key ~ '/logs') }}
-  with_dict: elao_projects
-  when: item.value['type'] == 'symfony' and elao_vagrant
+    setfacl -dR -m u:{{ elao_nginx_user }}:rwx -m u:{{ item.user|default(elao_base_user) }}:rwx {{ item.cache|default('/srv/' ~ item.name ~ '/cache') }} {{ item.logs|default('/srv/' ~ item.name ~ '/logs') }}
+  with_items: elao_projects
+  when: item.type == 'symfony' and elao_vagrant
   sudo: yes

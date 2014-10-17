@@ -1,7 +1,7 @@
-Ansible Role - Project
-======================
+Ansible Role - Projects
+=======================
 
-A project role for elao symfony standard vagrant box
+A projects role for elao symfony standard vagrant box
 
 
 Requirements
@@ -14,13 +14,16 @@ Role Variables
 --------------
 
     elao_projects:    # Array of projects
-      foo:              # Project name
-        type:  symfony  # Project type (php|silex|symfony|www)
-        host:  foo.dev  # Project host
-        root:  null     # Project root
-        extra:  null    # Project extra configuration
-        cache: null     # Project cache (symfony type only)
-        logs:  null     # Project logs  (symfony type only)
+      -
+        name:           foo      # Project name
+        index:          app      # Project index (symfony type only)
+        type:           symfony  # Project type (php|silex|symfony|www)
+        host:           foo.dev  # Project host
+        root:           null     # Project root
+        extra:          null     # Project extra configuration
+        location_extra: null     # Project extra location configuration
+        cache:          null     # Project cache (symfony type only)
+        logs:           null     # Project logs  (symfony type only)
 
 
 Example Playbook
@@ -29,10 +32,11 @@ Example Playbook
     - hosts: servers
       vars:
         elao_projects:
-          foo: { type: symfony, host: foo.dev }
-          bar: { type: silex, host: bar.dev }
+          -
+            { name: foo, type: symfony, host: foo.dev }
+            { name: bar, type: silex, host: bar.dev }
       roles:
-         - { role: elao.project, type: symfony }
+         - { role: elao.projects }
 
 
 License
