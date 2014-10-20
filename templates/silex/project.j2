@@ -2,7 +2,7 @@ server {
     listen 80;
 
     server_name {% if elao_vagrant %}*.vagrantshare.com {% endif %}{{ item.host|default(elao_base_host) }};
-    root {{ item.root|default('/srv/' ~ item.name ~ '/web') }};
+    root {{ item.root|default('/srv/' ~ item.name ~ '/silex/' ~ ('current/' if (elao_env == 'prod') else '') ~ 'web') }};
 
     error_log /var/log/nginx/{{ item.name }}.error.log;
     access_log /var/log/nginx/{{ item.name }}.access.log;
