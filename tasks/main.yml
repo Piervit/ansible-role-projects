@@ -18,7 +18,7 @@
   with_items: elao_projects
   sudo: yes
 
-- name: permission
+- name: root symfony
   file: >
     path={{ item.root|default('/srv/' ~ item.name ~ '/symfony') }}
     state=directory
@@ -28,7 +28,17 @@
   when: item.type == 'symfony' and not elao_vagrant
   sudo: yes
 
-- name: symfony cache
+- name: root silex
+  file: >
+    path={{ item.root|default('/srv/' ~ item.name ~ '/silex') }}
+    state=directory
+    owner={{ item.user|default(elao_base_user) }}
+    group={{ item.group|default(elao_base_group) }}
+  with_items: elao_projects
+  when: item.type == 'silex' and not elao_vagrant
+  sudo: yes
+
+- name: cache symfony
   file: >
     path={{ item.cache|default('/srv/' ~ item.name ~ '/cache') }}
     state=directory
@@ -36,7 +46,7 @@
   when: item.type == 'symfony' and elao_vagrant
   sudo: yes
 
-- name: symfony logs
+- name: logs symfony
   file: >
     path={{ item.logs|default('/srv/' ~ item.name ~ '/logs') }}
     state=directory
@@ -44,14 +54,14 @@
   when: item.type == 'symfony' and elao_vagrant
   sudo: yes
 
-- name: acl
+- name: acl symfony
   shell: >
     setfacl -R -m u:{{ elao_nginx_user }}:rwX -m u:{{ item.user|default(elao_base_user) }}:rwX {{ item.cache|default('/srv/' ~ item.name ~ '/cache') }} {{ item.logs|default('/srv/' ~ item.name ~ '/logs') }}
   with_items: elao_projects
   when: item.type == 'symfony' and elao_vagrant
   sudo: yes
 
-- name: acl default
+- name: acl default symfony
   shell: >
     setfacl -dR -m u:{{ elao_nginx_user }}:rwx -m u:{{ item.user|default(elao_base_user) }}:rwx {{ item.cache|default('/srv/' ~ item.name ~ '/cache') }} {{ item.logs|default('/srv/' ~ item.name ~ '/logs') }}
   with_items: elao_projects
