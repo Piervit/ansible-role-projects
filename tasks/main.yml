@@ -18,6 +18,14 @@
   with_items: elao_projects
   sudo: yes
 
+- name: nginx default disable
+  file: >
+    dest=/etc/nginx/sites-enabled/default
+    state=absent
+  notify:
+    - nginx restart
+  sudo: yes
+
 - name: root symfony
   file: >
     path={{ item.root|default('/srv/' ~ item.name ~ '/symfony') }}
