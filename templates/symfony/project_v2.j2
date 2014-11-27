@@ -1,5 +1,5 @@
 server {
-    listen {{ item.port|default(80) }};
+    listen {{ item.address|default("*") }}:{{ item.port|default(80) }};
 
     server_name {% if elao_vagrant %}*.vagrantshare.com {% endif %}{{ item.host|default(((item.index ~ '.') if (item.index|default('app') != 'app') else '') ~ elao_base_host) }};
     root {{ item.root|default('/srv/' ~ item.name ~ '/symfony/' ~ ('current/' if (elao_env == 'prod') else '') ~ 'web') }};
@@ -30,7 +30,7 @@ server {
 
     # pass the PHP scripts to FastCGI server from upstream phpfcgi
     location ~ ^/({{ item.index|default('app') }}{% if elao_env != 'prod' %}|{{ item.index|default('app') }}_dev|{{ item.index|default('app') }}_test{% endif %})\.php(/|$) {
-        fastcgi_pass unix:/var/run/php5-fpm.sock;
+        fastcgi_pass 127.0.0.1:9000;
         fastcgi_split_path_info ^(.+\.php)(/.*)$;
         include fastcgi_params;
         fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
