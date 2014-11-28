@@ -1,12 +1,23 @@
 ---
 
-- name: nginx config
+- name: Symfony nginx config
   template: >
-    src={{ item.type }}/project_v{{ item.version }}.j2
+    src={{ item.type }}/project_v{{ item.version|default('2') }}.j2
     dest=/etc/nginx/sites-available/{{ item.name ~ (('_' ~ item.index) if (item.index|default('app') != 'app') else '') }}
   notify:
     - nginx restart
   with_items: elao_projects
+  when: item.type == 'symfony'
+  sudo: yes
+
+- name: Default nginx config
+  template: >
+    src={{ item.type }}/project.j2
+    dest=/etc/nginx/sites-available/{{ item.name ~ (('_' ~ item.index) if (item.index|default('app') != 'app') else '') }}
+  notify:
+    - nginx restart
+  with_items: elao_projects
+  when: item.type != 'symfony'
   sudo: yes
 
 - name: nginx enable
