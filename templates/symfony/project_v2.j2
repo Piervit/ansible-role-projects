@@ -1,5 +1,5 @@
 server {
-    listen {{ item.address|default(elao_base_address) }}:{{ item.port|default(80) }};
+    listen {{ item.address|default(elao_base_address if (elao_env == 'prod') else '*') }}:{{ item.port|default(80) }};
 
     server_name {% if elao_vagrant %}*.vagrantshare.com {% endif %}{{ item.host|default(elao_base_host) }};
     root {{ item.root|default('/srv/' ~ item.root_name|default(item.name) ~ '/symfony/' ~ ('current/' if (elao_env == 'prod') else '') ~ 'web') }};
