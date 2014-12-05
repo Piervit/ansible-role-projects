@@ -1,19 +1,19 @@
 server {
     listen {{ item.address|default("*") }}:{{ item.port|default(80) }};
 
-    server_name {% if elao_vagrant %}*.vagrantshare.com {% endif %}{{ item.host|default(((item.index ~ '.') if (item.index|default('app') != 'app') else '') ~ elao_base_host) }};
-    root {{ item.root|default('/srv/' ~ item.name ~ '/symfony/' ~ ('current/' if (elao_env == 'prod') else '') ~ 'web') }};
+    server_name {% if elao_vagrant %}*.vagrantshare.com {% endif %}{{ item.host|default(elao_base_host) }};
+    root {{ item.root|default('/srv/' ~ item.root_name|default(item.name) ~ '/symfony/' ~ ('current/' if (elao_env == 'prod') else '') ~ 'web') }};
 
-    error_log /var/log/nginx/{{ item.name ~ (('_' ~ item.index) if (item.index|default('app') != 'app') else '') }}.error.log;
-    access_log /var/log/nginx/{{ item.name ~ (('_' ~ item.index) if (item.index|default('app') != 'app') else '')}}.access.log;
+    error_log /var/log/nginx/{{ item.log_name|default(item.name) }}.error.log;
+    access_log /var/log/nginx/{{ item.log_name|default(item.name) }}.access.log;
 
 {% if item.extra is defined %}
     {{ item.extra }}
 {% endif %}
 
     location / {
-        index {{ item.index|default('index') }}.php;
-        try_files $uri /index.php?$args;
+        index {{ item.index|default(['index'])|first }}.php;
+        try_files $uri /{{ item.index|default(['index'])|first }}.php?$args;
 {% if elao_vagrant %}
         # Issue with virtualbox and nginx
         # http://jeremyfelt.com/code/2013/01/08/clear-nginx-cache-in-vagrant/
@@ -22,13 +22,14 @@ server {
     }
 
     # pass the PHP scripts to FastCGI server from upstream phpfcgi
-    location ~ ^/({{ item.index|default('index') }}{% if elao_env != 'prod' %}|{{ item.index|default('index') }}_dev|{{ item.index|default('index') }}_test{% endif %})\.php(/|$) {
-        fastcgi_pass 127.0.0.1:9000;
-        fastcgi_split_path_info ^(.+\.php)(/.*)$;
-        include fastcgi_params;
-        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-        fastcgi_param HTTPS off;
-        fastcgi_read_timeout 300;
+    location ~ ^/(
+        {{- item.index|default(['index'])|join('|') -}}
+        {%- if elao_env != 'prod' -%}
+            |
+            {{- item.index|default(['index'])|map('regex_replace','^(.*)$','\\1_dev')|join('|') -}}
+        {%- endif -%}
+    )\.php(/|$) {
+        include php_params;
 
 {% if item.location_extra is defined %}
         {{ item.location_extra }}

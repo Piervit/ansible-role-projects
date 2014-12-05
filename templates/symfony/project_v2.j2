@@ -1,21 +1,21 @@
 server {
     listen {{ item.address|default("*") }}:{{ item.port|default(80) }};
 
-    server_name {% if elao_vagrant %}*.vagrantshare.com {% endif %}{{ item.host|default(((item.index ~ '.') if (item.index|default('app') != 'app') else '') ~ elao_base_host) }};
-    root {{ item.root|default('/srv/' ~ item.name ~ '/symfony/' ~ ('current/' if (elao_env == 'prod') else '') ~ 'web') }};
+    server_name {% if elao_vagrant %}*.vagrantshare.com {% endif %}{{ item.host|default(elao_base_host) }};
+    root {{ item.root|default('/srv/' ~ item.root_name|default(item.name) ~ '/symfony/' ~ ('current/' if (elao_env == 'prod') else '') ~ 'web') }};
 
-    error_log /var/log/nginx/{{ item.name ~ (('_' ~ item.index) if (item.index|default('app') != 'app') else '') }}.error.log;
-    access_log /var/log/nginx/{{ item.name ~ (('_' ~ item.index) if (item.index|default('app') != 'app') else '')}}.access.log;
+    error_log /var/log/nginx/{{ item.log_name|default(item.name) }}.error.log;
+    access_log /var/log/nginx/{{ item.log_name|default(item.name) }}.access.log;
 
-    # strip {{ item.index|default('app') }}.php/ prefix if it is present
-    rewrite ^/{{ item.index|default('app') }}\.php/?(.*)$ /$1 permanent;
+    # strip {{ item.index|default(['app'])|first }}.php/ prefix if it is present
+    rewrite ^/{{ item.index|default(['app'])|first }}\.php/?(.*)$ /$1 permanent;
 
 {% if item.extra is defined %}
     {{ item.extra }}
 {% endif %}
 
     location / {
-        index {{ item.index|default('app') }}.php;
+        index {{ item.index|default(['app'])|first }}.php;
         try_files $uri @rewrite;
 {% if elao_vagrant %}
         # Issue with virtualbox and nginx
@@ -25,17 +25,23 @@ server {
     }
 
     location @rewrite {
-        rewrite ^(.*)$ /{{ item.index|default('app') }}.php/$1 last;
+        rewrite ^(.*)$ /{{ item.index|default(['app'])|first }}.php/$1 last;
     }
 
     # pass the PHP scripts to FastCGI server from upstream phpfcgi
-    location ~ ^/({{ item.index|default('app') }}{% if elao_env != 'prod' %}|{{ item.index|default('app') }}_dev|{{ item.index|default('app') }}_test{% endif %})\.php(/|$) {
-        fastcgi_pass 127.0.0.1:9000;
-        fastcgi_split_path_info ^(.+\.php)(/.*)$;
-        include fastcgi_params;
-        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-        fastcgi_param HTTPS off;
-        fastcgi_read_timeout 300;
+    location ~ ^/({{ item.index|default(['app'] if (elao_env == 'prod') else ['app', 'app_dev', 'app_test'])|join('|') }})\.php(/|$) {
+
+    location ~ ^/(
+        {{- item.index|default(['app'])|join('|') -}}
+        {%- if elao_env != 'prod' -%}
+            |
+            {{- item.index|default(['app'])|map('regex_replace','^(.*)$','\\1_dev')|join('|') -}}
+            |
+            {{- item.index|default(['app'])|map('regex_replace','^(.*)$','\\1_test')|join('|') -}}
+        {%- endif -%}
+    )\.php(/|$) {
+
+        include php_params;
 
 {% if item.location_extra is defined %}
         {{ item.location_extra }}

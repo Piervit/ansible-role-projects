@@ -2,10 +2,10 @@ server {
     listen {{ item.address|default("*") }}:{{ item.port|default(80) }};
 
     server_name {% if elao_vagrant %}*.vagrantshare.com {% endif %}{{ item.host|default(elao_base_host) }};
-    root {{ item.root|default('/srv/' ~ item.name) }};
+    root {{ item.root|default('/srv/' ~ item.root_name|default(item.name)) }};
 
-    error_log /var/log/nginx/{{ item.name }}.error.log;
-    access_log /var/log/nginx/{{ item.name }}.access.log;
+    error_log /var/log/nginx/{{ item.log_name|default(item.name) }}.error.log;
+    access_log /var/log/nginx/{{ item.log_name|default(item.name) }}.access.log;
 
 {% if item.extra is defined %}
     {{ item.extra }}
