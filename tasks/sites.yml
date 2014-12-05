@@ -2,7 +2,7 @@
 
 - name: Symfony nginx config
   template: >
-    src={{ item.type }}/project_v{{ item.version|default('2') }}.j2
+    src={{ item.type }}/project_v{{ item.type_version|default('2') }}.j2
     dest=/etc/nginx/sites-available/{{ item.site_name|default(item.name) }}
   notify:
     - nginx restart
