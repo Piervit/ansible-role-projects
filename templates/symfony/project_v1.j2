@@ -21,6 +21,11 @@ server {
 {% endif %}
     }
 
+    # Symfony
+    location ^~ /sf/ { 
+        alias {{ elao_php_symfony.install_path }}/{{ elao_php_symfony.version }}/data/web/sf/;
+    }
+
     # pass the PHP scripts to FastCGI server from upstream phpfcgi
     location ~ ^/(
         {{- item.index|default(['index'])|join('|') -}}
