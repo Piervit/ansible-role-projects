@@ -1,4 +1,3 @@
 ---
 
-- include: nginx.yml
 - include: sites.yml
