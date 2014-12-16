@@ -2,7 +2,7 @@
 
 - name: nginx config symfony
   template: >
-    src={{ item.type }}/project_v{{ item.type_version|default('2') }}.j2
+    src={{ item.type }}/project_v{{ item.type_version|default(2) }}.j2
     dest=/etc/nginx/sites-available/{{ item.site_name|default(item.name) }}
   notify:
     - nginx restart
@@ -10,7 +10,7 @@
   when: item.type == 'symfony'
   sudo: yes
 
-- name: nginx config default
+- name: nginx config
   template: >
     src={{ item.type }}/project.j2
     dest=/etc/nginx/sites-available/{{ item.site_name|default(item.name) }}
@@ -57,32 +57,32 @@
   when: item.type == 'silex' and not elao_vagrant
   sudo: yes
 
-- name: cache symfony
+- name: cache symfony 2
   file: >
     path={{ item.cache|default('/srv/' ~ item.root_name|default(item.name) ~ '/cache') }}
     state=directory
   with_items: elao_projects
-  when: item.type == 'symfony' and elao_vagrant
+  when: item.type == 'symfony' and item.type_version|default(2) == 2 and elao_vagrant
   sudo: yes
 
-- name: logs symfony
+- name: logs symfony 2
   file: >
     path={{ item.logs|default('/srv/' ~ item.root_name|default(item.name) ~ '/logs') }}
     state=directory
   with_items: elao_projects
-  when: item.type == 'symfony' and elao_vagrant
+  when: item.type == 'symfony' and item.type_version|default(2) == 2 and elao_vagrant
   sudo: yes
 
-- name: acl symfony
+- name: acl symfony 2
   shell: >
     setfacl -R -m u:{{ elao_nginx_config_global.user|default('www-data') }}:rwX -m u:{{ item.user|default(elao_base_user) }}:rwX {{ item.cache|default('/srv/' ~ item.name ~ '/cache') }} {{ item.logs|default('/srv/' ~ item.name ~ '/logs') }}
   with_items: elao_projects
-  when: item.type == 'symfony' and elao_vagrant
+  when: item.type == 'symfony' and item.type_version|default(2) == 2 and elao_vagrant
   sudo: yes
 
-- name: acl default symfony
+- name: acl default symfony 2
   shell: >
     setfacl -dR -m u:{{ elao_nginx_config_global.user|default('www-data') }}:rwx -m u:{{ item.user|default(elao_base_user) }}:rwx {{ item.cache|default('/srv/' ~ item.name ~ '/cache') }} {{ item.logs|default('/srv/' ~ item.name ~ '/logs') }}
   with_items: elao_projects
-  when: item.type == 'symfony' and elao_vagrant
+  when: item.type == 'symfony' and item.type_version|default(2) == 2 and elao_vagrant
   sudo: yes
