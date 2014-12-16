@@ -1,6 +1,6 @@
 ---
 
-- name: Symfony nginx config
+- name: nginx config symfony
   template: >
     src={{ item.type }}/project_v{{ item.type_version|default('2') }}.j2
     dest=/etc/nginx/sites-available/{{ item.site_name|default(item.name) }}
@@ -10,7 +10,7 @@
   when: item.type == 'symfony'
   sudo: yes
 
-- name: Default nginx config
+- name: nginx config default
   template: >
     src={{ item.type }}/project.j2
     dest=/etc/nginx/sites-available/{{ item.site_name|default(item.name) }}
