@@ -75,14 +75,14 @@
 
 - name: acl symfony 2
   shell: >
-    setfacl -R -m u:{{ elao_nginx_config_global.user|default('www-data') }}:rwX -m u:{{ item.user|default(elao_base_user) }}:rwX {{ item.cache|default('/srv/' ~ item.name ~ '/cache') }} {{ item.logs|default('/srv/' ~ item.name ~ '/logs') }}
+    setfacl -R -m u:{{ elao_nginx_config_global.user|default('www-data') }}:rwX -m u:{{ item.user|default(elao_base_user) }}:rwX {{ item.cache|default('/srv/' ~ item.root_name|default(item.name) ~ '/cache') }} {{ item.logs|default('/srv/' ~ item.root_name|default(item.name) ~ '/logs') }}
   with_items: elao_projects
   when: item.type == 'symfony' and item.type_version|default(2) == 2 and elao_vagrant
   sudo: yes
 
 - name: acl default symfony 2
   shell: >
-    setfacl -dR -m u:{{ elao_nginx_config_global.user|default('www-data') }}:rwx -m u:{{ item.user|default(elao_base_user) }}:rwx {{ item.cache|default('/srv/' ~ item.name ~ '/cache') }} {{ item.logs|default('/srv/' ~ item.name ~ '/logs') }}
+    setfacl -dR -m u:{{ elao_nginx_config_global.user|default('www-data') }}:rwx -m u:{{ item.user|default(elao_base_user) }}:rwx {{ item.cache|default('/srv/' ~ item.root_name|default(item.name) ~ '/cache') }} {{ item.logs|default('/srv/' ~ item.root_name|default(item.name) ~ '/logs') }}
   with_items: elao_projects
   when: item.type == 'symfony' and item.type_version|default(2) == 2 and elao_vagrant
   sudo: yes
