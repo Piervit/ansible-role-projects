@@ -22,11 +22,6 @@ server {
         proxy_set_header Connection "upgrade";
         proxy_set_header Host $host;
 
-{% if elao_vagrant %}
-        # Issue with virtualbox and nginx
-        # http://jeremyfelt.com/code/2013/01/08/clear-nginx-cache-in-vagrant/
-        sendfile off;
-{% endif %}
 {% if item.location_extra is defined %}
         {{ item.location_extra }}
 {% endif %}
