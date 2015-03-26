@@ -27,8 +27,9 @@ Role Variables
         cache:          null        # Project cache (symfony type only)
         logs:           null        # Project logs  (symfony type only)
         proxy:                      # Proxy configuration (proxy type only)
-          adress: "http://127.0.0.1" # Proxy adress
-          port:   null               # Proxy port
+          port:      null               # Proxy port (required)
+          adress:    "http://127.0.0.1" # Proxy adress (optional)
+          websocket: false              # WebSocket handshake support (optional)
 
 
 Example Playbook
