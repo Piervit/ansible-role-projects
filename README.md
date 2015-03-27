@@ -17,7 +17,7 @@ Role Variables
       -
         name:           foo         # Project name
         index:          app         # Project index (symfony type only)
-        type:           symfony     # Project type (php|silex|symfony|www)
+        type:           symfony     # Project type (php|silex|symfony|www|proxy)
         address:        "127.0.0.1" # Network address to listen (Web server configuration)
         port:           80          # Port to listen (Web server configuration)
         host:           foo.dev     # Project host
@@ -26,6 +26,10 @@ Role Variables
         location_extra: null        # Project extra location configuration
         cache:          null        # Project cache (symfony type only)
         logs:           null        # Project logs  (symfony type only)
+        proxy:                      # Proxy configuration (proxy type only)
+          port:      null               # Proxy port (required)
+          adress:    "http://127.0.0.1" # Proxy adress (optional)
+          websocket: false              # WebSocket handshake support (optional)
 
 
 Example Playbook
