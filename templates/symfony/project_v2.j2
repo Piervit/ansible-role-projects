@@ -1,5 +1,5 @@
 server {
-    listen {{ item.address|default(elao_base_address if (elao_env == 'prod') else '*') }}:{{ item.port|default(80) }};
+    listen {{ item.address|default(elao_base_address if (elao_env == 'prod') else '*') }}:{{ item.port|default(80) }} {{ ("ssl" if (item.ssl_certificate is defined) ) }};
 
     server_name {% if elao_vagrant %}*.vagrantshare.com {% endif %}{{ item.host|default(elao_base_host) }};
     root {{ item.root|default('/srv/' ~ item.root_name|default(item.name) ~ '/symfony/' ~ ('current/' if (elao_env == 'prod') else '') ~ 'web') }};
@@ -9,6 +9,18 @@ server {
 
     # strip {{ item.index|default(['app'])|first }}.php/ prefix if it is present
     rewrite ^/{{ item.index|default(['app'])|first }}\.php/?(.*)$ /$1 permanent;
+
+{% if item.ssl_certificate is defined %}
+    ssl_certificate         {{ item.ssl_certificate }};
+{% endif %}
+{% if item.ssl_certificate_key is defined %}
+    ssl_certificate_key     {{ item.ssl_certificate_key }};
+{% endif %}
+{% if item.ssl_protocols is defined %}
+    ssl_protocols           {{ item.ssl_protocols }};
+{% endif %}
+
+
 
 {% if item.extra is defined %}
     {{ item.extra }}
@@ -21,6 +33,9 @@ server {
         # Issue with virtualbox and nginx
         # http://jeremyfelt.com/code/2013/01/08/clear-nginx-cache-in-vagrant/
         sendfile off;
+{% endif %}
+{% if item.ssl_certificate is defined %}
+        fastcgi_param HTTPS on;
 {% endif %}
     }
 
